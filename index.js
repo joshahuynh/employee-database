@@ -114,6 +114,144 @@ const viewAllEmployees=()=>{
     });  
 };
 
+const addDepartments=()=>{
+    inquirer.prompt([
+        {
+            type: 'input',
+            name: 'dept_name',
+            message: 'What is the name of the department you want to add?',
+            validate: function(dept_name){
+                if (dept_name){
+                    return true;
+                } console.log('Please enter the department name!')
+                return false;
+            }
+        }
+    ])
+    .then((res)=>{
+        const sql = `INSERT INTO department (department_name) VALUES (?)`
+        db.query(sql,res.dept_name,(err,result)=>{
+            if (err) throw err
+            console.log(`\n${res.dept_name} department added!\n`)
+            viewAllDepartments()
+        });
+    });
+};
+
+// add a role function
+const addRole=()=>{
+    inquirer.prompt([
+        {
+            type: 'input',
+            name: 'title',
+            message: 'What is the job title of the role?',
+            validate: function(title){
+                if (title){
+                    return true;
+                } console.log('Please enter a job title!')
+                return false;
+            }
+        },
+        {
+            type: 'input',
+            name: 'salary',
+            message: 'What is the salary for this role? (Enter a number amount)',
+            validate: function(salary){
+                if (salary && isNaN(salary)==false){
+                    return true;
+                } console.log('Please enter a salary!')
+                return false;
+            }
+        },
+        {
+            type: 'rawlist',
+            name: 'dept_id',
+            message: 'Choose the department for the new role',
+            choices: departmentChoices
+        }
+    ])
+    .then((res)=>{
+        let new_id;
+        eDept.map(id=>{
+            if(id.department_name===res.dept_id)
+            new_id=id.department_id;
+            console.log(new_id)
+        })
+        const sql = `INSERT INTO role (title,salary,department_id) VALUES (?,?,?)`;
+        const params = [res.title, res.salary, new_id]
+        db.query(sql,params,(err,result)=>{
+            if (err) throw err
+            console.log(`\n${res.title} added!\n`)
+            viewAllRoles()
+        });
+    });
+};
+
+// add new employee function
+const addEmployee=()=>{
+    inquirer.prompt([
+        {
+            type: 'input',
+            name: 'firstname',
+            message: "What is the employee's first name?",
+            validate: function(firstname){
+                if (firstname){
+                    return true;
+                } console.log('Please enter a first name!')
+                return false;
+            }
+        },
+        {
+            type: 'input',
+            name: 'lastname',
+            message: "What is the employee's last name?",
+            validate: function(lastname){
+                if (lastname){
+                    return true;
+                } console.log('Please enter a last name!')
+                return false;
+            }
+        },
+        {
+            type: 'rawlist',
+            name: 'title',
+            message: "What is the employee's role?",
+            choices: roleChoices
+        },
+        {
+            type: 'rawlist',
+            name: 'manager',
+            message: "Who is the employee's manager?",
+            choices: managerChoices
+        }
+    ])
+    .then((res)=>{
+        // looping over eEmp and rRole arrays to find corresponding id numbers
+        let noManager={
+            fullName:'No Manager',
+            employee_id:null
+        }
+        eEmp.push(noManager)
+        let m_id;
+        eEmp.map(id=>{
+            if(id.fullName===res.manager)
+            m_id=id.employee_id;
+        })
+        let new_id;
+        eRole.map(id=>{
+            if(id.title===res.title)
+            new_id=id.role_id
+        })
+        const sql = `INSERT INTO employee (first_name,last_name,role_id,manager_id) VALUES (?,?,?,?)`;
+        const params = [res.firstname, res.lastname, new_id,m_id]
+        db.query(sql,params,(err,result)=>{
+            if (err) throw err
+            console.log(`\n${res.firstname} ${res.lastname} added!\n`)
+            viewAllEmployees()
+        });
+    });
+};
+
 // get employee choices array
 const getEmployee=()=>{
     const sql = `SELECT CONCAT (first_name, ' ',last_name)as fullName, employee_id, manager_id FROM employee`
