@@ -332,6 +332,81 @@ const updateManager=()=>{
     });
 }
 
+// delete a department
+const deleteDepartment=()=>{
+    inquirer.prompt([
+        {
+            type: 'rawlist',
+            name: 'delete',
+            message: 'Which department would you like to delete?',
+            choices: departmentChoices
+        }
+    ])
+    .then((res)=>{
+        let new_id;
+        eDept.map(id=>{
+            if(id.department_name===res.delete)
+            new_id=id.department_id;
+        })
+        const params = [{department_id:new_id}]
+        db.query('DELETE FROM department WHERE ?',params, (err,result)=>{
+            if (err) throw err;
+            console.log(`\n\n${res.delete} department deleted.\n`)
+            viewAllDepartments();
+        })
+    })
+};
+
+// delete a role
+const deleteRole=()=>{
+    inquirer.prompt([
+        {
+            type: 'rawlist',
+            name: 'delete',
+            message: 'Which role would you like to delete?',
+            choices: roleChoices
+        }
+    ])
+    .then((res)=>{
+        let new_id;
+        eRole.map(id=>{
+            if(id.title===res.delete)
+            new_id=id.role_id
+        })
+        const params = [{role_id:new_id}]
+        db.query('DELETE FROM role WHERE ?',params, (err,result)=>{
+            if (err) throw err;
+            console.log(`\n\n${res.delete} deleted.\n`)
+            viewAllRoles();
+        })
+    })
+};
+
+// delete an employee
+const deleteEmployee=()=>{
+    inquirer.prompt([
+        {
+            type: 'rawlist',
+            name: 'delete',
+            message: 'Which employee would you like to delete?',
+            choices: employeeChoices
+        }
+    ])
+    .then((res)=>{
+        let e_id;
+        eEmp.map(id=>{
+            if(id.fullName===res.delete)
+            e_id=id.employee_id;
+        })
+        const params = [{employee_id:e_id}]
+        db.query('DELETE FROM employee WHERE ?',params, (err,result)=>{
+            if (err) throw err;
+            console.log(`\n\n${res.delete} deleted.\n`)
+            viewAllEmployees();
+        })
+    })
+};
+
 // get employee choices array
 const getEmployee=()=>{
     const sql = `SELECT CONCAT (first_name, ' ',last_name)as fullName, employee_id, manager_id FROM employee`
@@ -343,6 +418,7 @@ const getEmployee=()=>{
         eEmp=res
     });
 };
+
 //get department choices array
 const getDepartment=()=>{
     const sql = `SELECT * FROM department`
