@@ -407,6 +407,90 @@ const deleteEmployee=()=>{
     })
 };
 
+// view employee by manager
+const viewByManager=()=>{
+    inquirer.prompt([
+        {
+            type: 'rawlist',
+            name: 'manager',
+            message: "Which manager's employees would you like to view?",
+            choices: employeeChoices
+        }
+    ])
+    .then((res)=>{
+        let e_id;
+        eEmp.map(id=>{
+            if(id.fullName===res.manager)
+            e_id=id.employee_id;
+        })
+        const params = e_id
+        db.query('SELECT first_name,last_name FROM employee WHERE manager_id=?',params, (err,result)=>{
+            if (err) throw err;
+            if (result.length==0){
+                console.log(`\n\n${res.manager} is not a manager.\n`)
+                init();
+            }
+            console.log(`\n\n${res.manager} is the manager for the following employee(s).\n`)
+            console.table(result);
+            init();
+        })
+    })
+};
+
+// view employee by department
+const viewByDepartment=()=>{
+    inquirer.prompt([
+        {
+            type: 'rawlist',
+            name: 'dept',
+            message: "Which department's employees would you like to view?",
+            choices: departmentChoices
+        }
+    ])
+    .then((res)=>{
+        const sql=` SELECT e.first_name, e.last_name,role.title,department.department_name FROM employee e 
+        JOIN role ON e.role_id=role.role_id
+        JOIN department on role.department_id=department.department_id WHERE department.department_name=?`;
+        db.query(sql,res.dept, (err,result)=>{
+            if (err) throw err;
+            if (result.length==0){
+                console.log(`\n\nThere are no employees in the ${res.dept} department.\n`)
+                init();
+            }else{
+            console.log(`\n\nThe following employee(s) is/are in the ${res.dept} department.\n`)
+            console.table(result);
+            init();
+            }
+        })
+    })
+};
+
+// view budget by department
+const viewBudget=()=>{
+    inquirer.prompt([
+        {
+            type: 'rawlist',
+            name: 'dept',
+            message: "Which department's budget would you like to view?",
+            choices: departmentChoices
+        }
+    ])
+    .then((res)=>{
+        const sql=` SELECT e.first_name, e.last_name,role.title,role.salary,department.department_name FROM employee e 
+        JOIN role ON e.role_id=role.role_id
+        JOIN department on role.department_id=department.department_id WHERE department.department_name=?`;
+        db.query(sql,res.dept, (err,result)=>{
+            if (err) throw err;
+            console.log('\n\n')
+            console.table(result);
+            let salaries=(result.map(cost=>cost.salary)).map(Number)
+            let budget=salaries.reduce((total,amount)=>total+amount);
+            console.log(`${res.dept} department has ${result.length} employee(s) for a total budget of $${budget}.\n\n`)
+            init();
+        })
+    })
+}
+
 // get employee choices array
 const getEmployee=()=>{
     const sql = `SELECT CONCAT (first_name, ' ',last_name)as fullName, employee_id, manager_id FROM employee`
