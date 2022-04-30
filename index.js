@@ -31,6 +31,7 @@ const init=()=>{
     startPrompt()
 }
 
+// choices prompt
 const startPrompt=()=>{
     inquirer.prompt([
         {
@@ -38,7 +39,7 @@ const startPrompt=()=>{
             name: 'task',
             message:"What do you want to do?",
             choices:[
-                 'View All Departments',
+                'View All Departments',
                 'View All Roles',
                 'View All Employees',
                 'Add a Department',
@@ -73,6 +74,44 @@ const startPrompt=()=>{
                     :(res.task=='View Budget')?viewBudget()
                     :console.log('Closing database...'), db.end
     })   
+};
+
+// view all departments
+const viewAllDepartments=()=>{
+    const sql='SELECT * FROM department'
+    db.query(sql,(err,res)=>{
+        if(err)throw err;
+        console.log("Viewing All Departments")
+        console.table(res);
+        init();
+    });
+};
+
+// view all roles
+const viewAllRoles=()=>{
+    const sql=`SELECT title,role_id,department.department_name,salary FROM role
+    JOIN department ON role.department_id=department.department_id`
+    db.query(sql,(err,res)=>{
+        if(err)throw err;
+        console.log("Viewing All Roles")
+        console.table(res);
+        init();
+    });
+};
+
+// view all employees
+const viewAllEmployees=()=>{
+    const sql=` SELECT e.employee_id, e.first_name, e.last_name,title,department_name,role.salary,CONCAT(m.first_name,' ',m.last_name)AS Manager FROM employee e
+    JOIN role ON e.role_id=role.role_id
+    JOIN department on role.department_id=department.department_id
+    LEFT OUTER JOIN employee m ON m.employee_id=e.manager_id
+    ORDER BY e.last_name;`;
+    db.query(sql,(err,res)=>{
+        if(err)throw err
+        console.log("Viewing All Employees")
+        console.table(res)
+        init();
+    });  
 };
 
 // get employee choices array
