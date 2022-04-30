@@ -31,6 +31,50 @@ const init=()=>{
     startPrompt()
 }
 
+const startPrompt=()=>{
+    inquirer.prompt([
+        {
+            type:'rawlist',
+            name: 'task',
+            message:"What do you want to do?",
+            choices:[
+                 'View All Departments',
+                'View All Roles',
+                'View All Employees',
+                'Add a Department',
+                'Add a Role',
+                'Add an Employee',
+                'Update Employee Role',
+                'Update Employee Manager',
+                'Delete a Department',
+                'Delete a Role',
+                'Delete an employee',
+                'View by Manager',
+                'View by Department',
+                'View Budget',
+                'Exit'
+            ]
+        }
+    ])
+    .then((res)=>{
+                    (res.task=='View All Departments')?viewAllDepartments()
+                    :(res.task=='View All Employees')?viewAllEmployees()
+                    :(res.task=='Add an Employee')?addEmployee()
+                    :(res.task=='Update Employee Role')?updateEmployee()
+                    :(res.task=='View All Roles')?viewAllRoles()
+                    :(res.task=='Add a Role')?addRole()
+                    :(res.task=='Add a Department')?addDepartments()
+                    :(res.task=='Update Employee Manager')?updateManager()
+                    :(res.task=='Delete a Department')?deleteDepartment()
+                    :(res.task=='Delete a Role')?deleteRole()
+                    :(res.task=='Delete an employee')?deleteEmployee()
+                    :(res.task=='View by Manager')?viewByManager()
+                    :(res.task=='View by Department')?viewByDepartment()
+                    :(res.task=='View Budget')?viewBudget()
+                    :console.log('Closing database...'), db.end
+    })   
+};
+
 // get employee choices array
 const getEmployee=()=>{
     const sql = `SELECT CONCAT (first_name, ' ',last_name)as fullName, employee_id, manager_id FROM employee`
