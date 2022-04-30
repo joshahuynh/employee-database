@@ -17,7 +17,7 @@ const db = mysql.createConnection(
     {
         host:'localhost',
         user:'root',
-        password:'$Jobang123195',
+        password:'BootCamp1',
         database: 'employeeDB'
     },
     console.log('Connected to the employeeDB \n\n')
@@ -481,12 +481,17 @@ const viewBudget=()=>{
         JOIN department on role.department_id=department.department_id WHERE department.department_name=?`;
         db.query(sql,res.dept, (err,result)=>{
             if (err) throw err;
-            console.log('\n\n')
-            console.table(result);
-            let salaries=(result.map(cost=>cost.salary)).map(Number)
-            let budget=salaries.reduce((total,amount)=>total+amount);
-            console.log(`${res.dept} department has ${result.length} employee(s) for a total budget of $${budget}.\n\n`)
-            init();
+            if (result.length==0){
+                console.log(`\n\nThere are no employees in the ${res.dept} department.\n`)
+                init();
+            }else{
+                console.log('\n\n')
+                console.table(result);
+                let salaries=(result.map(cost=>cost.salary)).map(Number)
+                let budget=salaries.reduce((total,amount)=>total+amount);
+                console.log(`${res.dept} department has ${result.length} employee(s) for a total budget of $${budget}.\n\n`)
+                init()
+            }
         })
     })
 }
