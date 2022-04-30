@@ -252,6 +252,86 @@ const addEmployee=()=>{
     });
 };
 
+// update employee's role
+const updateEmployee=()=>{
+    inquirer.prompt([
+        {
+            type: 'rawlist',
+            name: 'employeename',
+            message: "Which employee's role would you like to update?",
+            choices: employeeChoices
+        },
+        {
+            type: 'rawlist',
+            name: 'newtitle',
+            message: "What is the employee's new role?",
+            choices: roleChoices
+        }
+    ])
+    .then((res)=>{
+        // looping over eEmp and ERole arrays to find corresponding id numbers
+        let e_id;
+        eEmp.map(id=>{
+            if(id.fullName===res.employeename)
+            e_id=id.employee_id;
+        })
+        let new_id;
+        eRole.map(id=>{
+            if(id.title===res.newtitle)
+            new_id=id.role_id
+        })
+        const sql = `UPDATE employee SET? WHERE?`;
+        const params = [{role_id:new_id},{employee_id:e_id}]
+        db.query(sql,params,(err,result)=>{
+            if (err) throw err
+            console.log(`\n${res.employeename}'s role is updated!\n`)
+            viewAllEmployees()
+        });
+    });
+}
+
+// update employee's manager
+const updateManager=()=>{
+    inquirer.prompt([
+        {
+            type: 'rawlist',
+            name: 'employeename',
+            message: "Which employee's manager would you like to update?",
+            choices: employeeChoices
+        },
+        {
+            type: 'rawlist',
+            name: 'newmanager',
+            message: "Who is the new manager?",
+            choices: managerChoices
+        }
+    ])
+    .then((res)=>{
+        let e_id;
+        eEmp.map(id=>{
+            if(id.fullName===res.employeename)
+            e_id=id.employee_id;
+        })
+        let noManager={
+            fullName:'No Manager',
+            employee_id:null
+        }
+        eEmp.push(noManager)
+        let m_id;
+        eEmp.map(id=>{
+            if(id.fullName===res.newmanager)
+            m_id=id.employee_id;
+        })
+        const sql = `UPDATE employee SET? WHERE?`;
+        const params = [{manager_id:m_id},{employee_id:e_id}]
+        db.query(sql,params,(err,result)=>{
+            if (err) throw err
+            console.log(`\n${res.employeename}'s manager is updated!\n`)
+            viewAllEmployees()
+        });
+    });
+}
+
 // get employee choices array
 const getEmployee=()=>{
     const sql = `SELECT CONCAT (first_name, ' ',last_name)as fullName, employee_id, manager_id FROM employee`
